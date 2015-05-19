@@ -564,7 +564,7 @@ do_transverse (j_decompress_ptr srcinfo, j_compress_ptr dstinfo,
  * the source's virtual arrays).
  */
 
-GLOBAL(void)
+GLOBAL(boolean)
 jtransform_request_workspace (j_decompress_ptr srcinfo,
 			      jpeg_transform_info *info)
 {
@@ -631,6 +631,7 @@ jtransform_request_workspace (j_decompress_ptr srcinfo,
     break;
   }
   info->workspace_coef_arrays = coef_arrays;
+  return TRUE;
 }
 
 

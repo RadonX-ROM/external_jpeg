@@ -83,22 +83,62 @@ typedef enum {
  * be aware of the option to know how many components to work on.
  */
 
+typedef enum {
+  JCROP_UNSET,
+  JCROP_POS,
+  JCROP_NEG,
+  JCROP_FORCE
+} JCROP_CODE;
+
+/*
+ * Transform parameters struct.
+ * NB: application must not change any elements of this struct after
+ * calling jtransform_request_workspace.
+ */
+
 typedef struct {
   /* Options: set by caller */
   JXFORM_CODE transform;	/* image transform operator */
+  boolean perfect;              /* if TRUE, fail if partial MCUs are requested */
   boolean trim;			/* if TRUE, trim partial MCUs as needed */
   boolean force_grayscale;	/* if TRUE, convert color image to grayscale */
+  boolean crop;                 /* if TRUE, crop source image */
+  boolean slow_hflip;  /* For best performance, the JXFORM_FLIP_H transform
+                          normally modifies the source coefficients in place.
+                          Setting this to TRUE will instead use a slower,
+                          double-buffered algorithm, which leaves the source
+                          coefficients in tact (necessary if other transformed
+                          images must be generated from the same set of
+                          coefficients. */
+
+  /* Crop parameters: application need not set these unless crop is TRUE.
+   * These can be filled in by jtransform_parse_crop_spec().
+   */
+  JDIMENSION crop_width;        /* Width of selected region */
+  JCROP_CODE crop_width_set;    /* (forced disables adjustment) */
+  JDIMENSION crop_height;       /* Height of selected region */
+  JCROP_CODE crop_height_set;   /* (forced disables adjustment) */
+  JDIMENSION crop_xoffset;      /* X offset of selected region */
+  JCROP_CODE crop_xoffset_set;  /* (negative measures from right edge) */
+  JDIMENSION crop_yoffset;      /* Y offset of selected region */
+  JCROP_CODE crop_yoffset_set;  /* (negative measures from bottom edge) */
 
   /* Internal workspace: caller should not touch these */
   int num_components;		/* # of components in workspace */
   jvirt_barray_ptr * workspace_coef_arrays; /* workspace for transformations */
+  JDIMENSION output_width;      /* cropped destination dimensions */
+  JDIMENSION output_height;
+  JDIMENSION x_crop_offset;     /* destination crop offsets measured in iMCUs */
+  JDIMENSION y_crop_offset;
+  int iMCU_sample_width;        /* destination iMCU size */
+  int iMCU_sample_height;
 } jpeg_transform_info;
 
 
 #if TRANSFORMS_SUPPORTED
 
 /* Request any required workspace */
-EXTERN(void) jtransform_request_workspace
+EXTERN(boolean) jtransform_request_workspace
 	JPP((j_decompress_ptr srcinfo, jpeg_transform_info *info));
 /* Adjust output image parameters */
 EXTERN(jvirt_barray_ptr *) jtransform_adjust_parameters

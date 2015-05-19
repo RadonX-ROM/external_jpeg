@@ -67,8 +67,6 @@ LOCAL_MODULE := libjpeg_static
 
 include $(BUILD_STATIC_LIBRARY)
 
-
-
 # Build shared library
 include $(CLEAR_VARS)
 
@@ -93,8 +91,11 @@ LOCAL_ARM_MODE := arm
 LOCAL_SRC_FILES := \
 	cjpeg.c cdjpeg.h jinclude.h jconfig.h jpeglib.h jmorecfg.h jerror.h cderror.h jversion.h rdswitch.c cdjpeg.c rdtarga.c rdppm.c rdgif.c rdbmp.c
 LOCAL_MODULE:= cjpeg
-LOCAL_MODULE_TAGS := eng
+LOCAL_MODULE_TAGS := debug
 LOCAL_SHARED_LIBRARIES := libc libcutils libjpeg
+LOCAL_MULTILIB := both
+LOCAL_MODULE_STEM_64 := $(LOCAL_MODULE)64
+LOCAL_MODULE_STEM_32 := $(LOCAL_MODULE)32
 include $(BUILD_EXECUTABLE)
 
 include $(CLEAR_VARS)
@@ -102,6 +103,32 @@ LOCAL_ARM_MODE := arm
 LOCAL_SRC_FILES := \
 	djpeg.c cdjpeg.h jinclude.h jconfig.h jpeglib.h jmorecfg.h jerror.h cderror.h jversion.h cdjpeg.c wrppm.c wrgif.c wrbmp.c rdcolmap.c wrtarga.c
 LOCAL_MODULE:= djpeg
-LOCAL_MODULE_TAGS := eng
+LOCAL_MODULE_TAGS := debug
 LOCAL_SHARED_LIBRARIES := libc libcutils libjpeg
+LOCAL_MULTILIB := both
+LOCAL_MODULE_STEM_64 := $(LOCAL_MODULE)64
+LOCAL_MODULE_STEM_32 := $(LOCAL_MODULE)32
+include $(BUILD_EXECUTABLE)
+
+######################################################
+###                  tjbench                       ###
+######################################################
+include $(CLEAR_VARS)
+# From autoconf-generated Makefile
+tjbench_SOURCES = tjbench.c bmp.c tjutil.c rdbmp.c rdppm.c \
+        wrbmp.c wrppm.c \
+        turbojpeg.c transupp.c jdatadst-tj.c jdatasrc-tj.c \
+
+LOCAL_SRC_FILES:= $(tjbench_SOURCES)
+LOCAL_SHARED_LIBRARIES := libjpeg
+LOCAL_CFLAGS := -DBMP_SUPPORTED -DPPM_SUPPORTED \
+         -DANDROID -DANDROID_TILE_BASED_DECODE -DENABLE_ANDROID_NULL_CONVERT
+LOCAL_MODULE_PATH := $(TARGET_OUT_OPTIONAL_EXECUTABLE)
+LOCAL_MODULE_TAGS := debug
+LOCAL_MODULE := tjbench
+
+LOCAL_MULTILIB := both
+LOCAL_MODULE_STEM_64 := $(LOCAL_MODULE)64
+LOCAL_MODULE_STEM_32 := $(LOCAL_MODULE)32
+
 include $(BUILD_EXECUTABLE)
